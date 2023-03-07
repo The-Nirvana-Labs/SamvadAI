@@ -1,9 +1,10 @@
 import spacy
+import textacy
 
 
 def extract_chunks(text):
     """
-    Extracts noun chunks from the input text using a machine learning model and returns them as a list of strings.
+    Extracts noun chunks from the input text using a pre-trained deep learning model and returns them as a list of strings.
 
     Args:
     - text (str): The input text to extract noun chunks from.
@@ -13,9 +14,5 @@ def extract_chunks(text):
     """
     spacy_nlp = spacy.load('en_core_web_sm')
     doc = spacy_nlp(text)
-    chunks = []
-    for chunk in doc.noun_chunks:
-        # Use a binary classifier to filter out non-noun phrases
-        if chunk.root.pos_ == 'NOUN':
-            chunks.append(chunk.text)
+    chunks = list(textacy.extract.noun_chunks(doc))
     return chunks
