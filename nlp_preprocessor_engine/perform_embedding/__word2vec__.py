@@ -9,10 +9,10 @@ def generate_embeddings(text):
     Generates embeddings for a given text using Word2Vec model.
 
     Args:
-    text (list): A list of words to generate embeddings for.
+    - text (list): A list of words to generate embeddings for.
 
     Returns:
-    embeddings (list): A list of embeddings, where each embedding corresponds to a word in the input text.
+    - embeddings (list): A list of embeddings, where each embedding corresponds to a word in the input text.
                        If a word is not present in the model's vocabulary, the embedding is a zero vector.
     """
     # Load word2vec model

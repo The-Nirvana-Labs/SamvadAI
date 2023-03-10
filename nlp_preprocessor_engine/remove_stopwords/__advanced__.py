@@ -2,6 +2,7 @@ import spacy
 
 nlp = spacy.load('en_core_web_sm')
 
+
 def remove_stopwords(text):
     """
     Removes stopwords from the input text and returns the filtered text as a string.
