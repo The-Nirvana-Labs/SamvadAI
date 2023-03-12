@@ -1,6 +1,6 @@
 # SamvadAI - The Conversational AI Powerhouse
 
-Namaste, welcome to SamvadAI, the ultimate open-source conversational AI project powered by The Nirvana Labs. SamvadAI is built on the cutting-edge OpenAI GPT-3 language model, enabling businesses and individuals to create their own custom conversational bots with ease.
+🙏Namaste, welcome to SamvadAI, the ultimate open-source conversational AI project powered by The Nirvana Labs. SamvadAI is built on the cutting-edge OpenAI GPT-3 language model, enabling businesses and individuals to create their own custom conversational bots with ease.
 
 We believe that everyone deserves a powerful AI tool in their arsenal, and SamvadAI is just that. Think of it as the ultimate sidekick for your business, always ready to assist you in any conversation with its AI superpowers.
 
