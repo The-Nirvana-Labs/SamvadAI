@@ -1,27 +1,27 @@
-import spacy
 import openai
-import numpy as np
 import os
+from typing import List
+import torch
+from sentence_transformers import SentenceTransformer
 
 
-def generate_sentence_embeddings(text):
+def generate_embeddings(sentences: List[str]) -> List[torch.Tensor]:
     """
-    Generates a sentence embedding for a given text using spaCy's pre-trained word embeddings.
+    Generates embeddings for a list of sentences using the all-roberta-large-v1 model from SentenceTransformers.
 
     Args:
-    text (str): A sentence to generate an embedding for.
+    - sentences (list): A list of strings representing sentences to generate embeddings for.
 
     Returns:
-    sentence_embedding (list): A list representing the sentence embedding as the mean of token embeddings.
+    - embeddings (list): A list of torch Tensors, where each tensor corresponds to an embedding for a sentence in the input list.
     """
-    nlp = spacy.load("en_core_web_lg")
-    doc = nlp(text)
-    # Remove stop words and punctuation
-    filtered_tokens = [token for token in doc if not token.is_stop and not token.is_punct]
-    # Compute sentence embedding as the mean of token embeddings
-    embeddings = [token.vector for token in filtered_tokens]
-    sentence_embedding = np.mean(embeddings, axis=0)
-    return sentence_embedding.tolist()
+    # Load all-roberta-large-v1 model
+    model = SentenceTransformer('all-MiniLM-L6-v2')
+
+    # Generate embeddings
+    embeddings = model.encode(sentences, show_progress_bar=True)
+
+    return embeddings
 
 
 def perform_embedding(embedding):
