@@ -1,4 +1,4 @@
-import stanfordnlp
+import spacy
 
 
 def perform_ner(text):
@@ -11,10 +11,9 @@ def perform_ner(text):
     Returns:
     - list: A list of named entities found in the input text, represented as tuples of the form (entity_text, entity_type).
     """
-    nlp = stanfordnlp.Pipeline()
+    nlp = spacy.load("en_core_web_lg")
     doc = nlp(text)
     entities = []
-    for sentence in doc.sentences:
-        for entity in sentence.ents:
-            entities.append((entity.text, entity.type))
+    for ent in doc.ents:
+        entities.append((ent.text, ent.label_))
     return entities

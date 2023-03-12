@@ -1,10 +1,10 @@
-import spacy
-import neuralcoref
+import torch
+from transformers import AutoTokenizer, AutoModelForTokenClassification
 
 
 def extract_chunks(text):
     """
-    Extracts noun chunks from the input text using state-of-the-art deep learning models and returns them as a list of strings.
+    Extracts noun chunks from the input text using a pre-trained transformer model and returns them as a list of strings.
 
     Args:
     - text (str): The input text to extract noun chunks from.
@@ -12,14 +12,29 @@ def extract_chunks(text):
     Returns:
     - list: A list of noun chunks found in the input text, represented as strings.
     """
-    spacy_nlp = spacy.load('en_core_web_trf')
-    neuralcoref.add_to_pipe(spacy_nlp)
-    doc = spacy_nlp(text)
+    # Load a pre-trained tokenizer and transformer model from the Hugging Face Transformers library
+    tokenizer = AutoTokenizer.from_pretrained('bert-base-uncased')
+    model = AutoModelForTokenClassification.from_pretrained('bert-base-uncased', num_labels=3)
+
+    # Tokenize the input text using the tokenizer
+    inputs = tokenizer.encode_plus(text, return_tensors='pt', add_special_tokens=True)
+
+    # Process the input text using the transformer model
+    with torch.no_grad():
+        outputs = model(**inputs)
+
+    # Extract the noun chunks from the processed text
+    labels = torch.argmax(outputs.logits, dim=2)
     chunks = []
-    for chunk in doc.noun_chunks:
-        # Use a binary classifier to filter out non-noun phrases
-        if chunk.root.pos_ == 'NOUN':
-            # Use neuralcoref to resolve co-references within noun chunks
-            resolved_chunk = doc._.coref_resolved[chunk.start:chunk.end].strip()
-            chunks.append(resolved_chunk)
+    current_chunk = ''
+    for i, token_label in enumerate(labels[0]):
+        token = tokenizer.decode([inputs['input_ids'][0][i]])
+        if token_label == 1:
+            current_chunk += ' ' + token
+        elif token_label == 2:
+            current_chunk += token
+            chunks.append(current_chunk.strip())
+            current_chunk = ''
+
+    # Return the list of noun chunks found in the text
     return chunks
