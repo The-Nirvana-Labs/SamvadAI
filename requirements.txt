@@ -2,6 +2,7 @@ annoy==1.17.1
 faiss==1.5.3
 flair==0.12.1
 langchain==0.0.27
+memory_profiler==0.61.0
 neuralcoref==4.0
 nltk==3.8.1
 openai==0.26.5
