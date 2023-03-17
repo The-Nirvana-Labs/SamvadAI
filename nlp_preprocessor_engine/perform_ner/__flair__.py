@@ -2,7 +2,7 @@ from flair.data import Sentence
 from flair.models import SequenceTagger
 
 
-def flair_ner(text: str, model_name: str = 'ner') -> dict:
+def perform_ner(text: str, model_name: str = 'ner') -> dict:
     """
     Perform Named Entity Recognition (NER) on input text using Flair.
 
@@ -32,4 +32,4 @@ def flair_ner(text: str, model_name: str = 'ner') -> dict:
         })
 
     # Return the named entities as a dictionary
-    return {'entities': entities}
+    return entities
