@@ -3,7 +3,7 @@ import spacy
 
 def extract_chunks(text):
     """
-    Extracts noun chunks from the input text and returns them as a list of strings.
+    Extracts noun chunks from the input text using a machine learning model and returns them as a list of strings.
 
     Args:
     - text (str): The input text to extract noun chunks from.
@@ -15,5 +15,7 @@ def extract_chunks(text):
     doc = spacy_nlp(text)
     chunks = []
     for chunk in doc.noun_chunks:
-        chunks.append(chunk.text)
+        # Use a binary classifier to filter out non-noun phrases
+        if chunk.root.pos_ == 'NOUN':
+            chunks.append(chunk.text)
     return chunks
