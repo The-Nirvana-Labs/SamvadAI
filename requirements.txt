@@ -1,5 +1,5 @@
 annoy==1.17.1
-faiss==1.5.3
+faiss-cpu==1.7.3
 flair==0.12.1
 hnswlib==0.7.0
 langchain==0.0.27
