@@ -15,8 +15,9 @@ class Pipeline(object):
     At any time, if a normal step is running, it will try to infuse cast of previous step, if any.
     All steps are required to have standalone-context already inserted while queuing.
     """
-    def __init__(self):
+    def __init__(self, entry_context: Context):
         self._execution_context: ExecutionContext = ExecutionContext()
+        self._entry_context: Context = entry_context
 
     def load_steps(self, arg: List[Step] | Step):
         if not isinstance(arg, list):
@@ -35,6 +36,10 @@ class Pipeline(object):
             step = self._execution_context.consume()
             if step is None:
                 break
+            if total_executed_steps == 0:
+                # First step
+                self._entry_context.step_id = step.get_id()
+                step.set_context(self._entry_context)
             if isinstance(step, CastOutputToContext):
                 casting_context = CastingContext(step.get_id(), previous_context, previous_output)
                 step.set_context(casting_context)
@@ -45,8 +50,13 @@ class Pipeline(object):
             step.run()
             previous_context = step.get_context()
             previous_output = step.get_output()
+            previous_output.step_id = step.get_id()
+            self._execution_context.put_output(previous_output)
             total_executed_steps += 1
         return total_executed_steps
+
+    def get_outputs(self) -> SimpleQueue[Output]:
+        return self._execution_context.get_outputs()
 
 
 class ExecutionContext(object):
@@ -70,6 +80,9 @@ class ExecutionContext(object):
         self._put(step)
         self._previous_insertion = step
 
+    def put_output(self, output: Output) -> None:
+        self._put(output)
+
     def consume(self) -> Step | None:
         self._previous_step = self._running_step
         self._running_step = self._consume()
@@ -83,7 +96,7 @@ class ExecutionContext(object):
 
     def _consume(self) -> Step | None:
         try:
-            return self._steps.get()
+            return self._steps.get(block=False)
         except QueueEmptyException:
             return None
 
