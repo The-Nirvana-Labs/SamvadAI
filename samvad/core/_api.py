@@ -3,7 +3,7 @@ from __future__ import annotations
 from abc import abstractmethod
 from dataclasses import dataclass
 
-from samvaad.utils import generate_random_string
+from samvad.utils import generate_random_string
 
 
 @dataclass
