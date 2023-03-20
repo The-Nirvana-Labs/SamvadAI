@@ -1,7 +1,8 @@
 from pathlib import Path
 
 from .core import pipeline
-from .loader import LoadTextStep, LoadTextContext, LoadTextOutput
+from .loader import LoadTextStep, LoadTextContext
+from .remove_stopwords import CastRemoveStopwordContextFromLoadText, RemoveStopwordsStep
 
 
 def main():
@@ -9,7 +10,7 @@ def main():
 
     execution_pipeline = pipeline.Pipeline(entry_context)
 
-    execution_pipeline.load_steps(LoadTextStep())
+    execution_pipeline.load_steps([LoadTextStep(), CastRemoveStopwordContextFromLoadText(), RemoveStopwordsStep()])
 
     execution_pipeline.start()
 
