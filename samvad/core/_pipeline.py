@@ -41,7 +41,8 @@ class Pipeline(object):
                 self._entry_context.step_id = step.get_id()
                 step.set_context(self._entry_context)
             if isinstance(step, CastOutputToContext):
-                casting_context = CastingContext(step.get_id(), previous_context, previous_output)
+                casting_context = CastingContext(previous_context, previous_output)
+                casting_context.step_id = step.get_id()
                 step.set_context(casting_context)
             else:
                 if previous_output is not None and isinstance(previous_output, CastingOutput):
