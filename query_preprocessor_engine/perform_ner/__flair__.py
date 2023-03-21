@@ -1,35 +1,34 @@
-from flair.data import Sentence
 from flair.models import SequenceTagger
+from flair.data import Sentence
 
 
-def perform_ner(text: str, model_name: str = 'ner') -> dict:
+def perform_ner(text):
     """
-    Perform Named Entity Recognition (NER) on input text using Flair.
+    Performs named entity recognition on the input text using Flair and wraps the identified entities with their respective XML tags.
 
     Args:
-        text (str): Input text to perform NER on.
-        model_name (str, optional): Name of the Flair NER model to use. Default is 'ner'.
+    - text (str): The input text to perform named entity recognition on.
 
     Returns:
-        dict: A dictionary containing the recognized named entities and their types.
+    - str: The input text with identified entities wrapped in their respective XML tags.
 
+    Example:
+    >>> text = "My favorite book is To Kill a Mockingbird by Harper Lee."
+    >>> perform_ner(text)
+    'My favorite book is [BOOK]To Kill a Mockingbird[/BOOK] by [PERSON]Harper Lee[/PERSON].'
     """
-    # Load the Flair NER model
-    tagger = SequenceTagger.load(model_name)
 
-    # Create a Flair Sentence object from the input text
+    # load the named entity recognition model
+    tagger = SequenceTagger.load('ner')
+
+    # create a sentence object from the input text
     sentence = Sentence(text)
 
-    # Run NER on the sentence
+    # run named entity recognition on the sentence
     tagger.predict(sentence)
 
-    # Extract the named entities and their types from the sentence
-    entities = []
+    # loop through the identified entities and wrap them in their respective XML tags
     for entity in sentence.get_spans('ner'):
-        entities.append({
-            'text': entity.text,
-            'type': entity.tag
-        })
+        text = text.replace(entity.text, f"[{entity.tag.upper()}]{entity.text}[/{entity.tag.upper()}]")
 
-    # Return the named entities as a dictionary
-    return entities
+    return text

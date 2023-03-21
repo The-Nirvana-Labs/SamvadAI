@@ -25,6 +25,3 @@ def perform_ner(text):
         xml_tag = xml_tags[entity_type]
         text = text.replace(entity, f"[{xml_tag}]{entity}[/{xml_tag}]")
     return text
-
-
-print(perform_ner("My favorite book is To Kill a Mockingbird by Harper Lee."))
