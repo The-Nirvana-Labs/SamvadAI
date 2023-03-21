@@ -1,5 +1,6 @@
 import openai
 import os
+import torch
 
 
 def perform_embedding(text):
@@ -10,15 +11,9 @@ def perform_embedding(text):
     - text (str): The input text to perform embedding on.
 
     Returns:
-    - str: The resulting text embedding.
+    - torch.Tensor: The resulting text embedding as a tensor.
     """
     openai.api_key = os.getenv("OPENAI_API_KEY")
-    response = openai.Completion.create(
-        engine="text-davinci-002",
-        prompt=text,
-        temperature=0.5,
-        max_tokens=50,
-        n=1,
-        stop=None,
-    )
-    return response.choices[0].text
+    embedding = openai.Embedding("text-davinci-002")
+    response = embedding.embed_text(text)
+    return torch.tensor(response)
