@@ -1,6 +1,7 @@
 import hnswlib
 import numpy as np
 
+
 def embedding_to_indexes(embeddings: np.ndarray) -> np.ndarray:
     """
     Builds a HNSWLIB index for the input embeddings using the given hyperparameters.
