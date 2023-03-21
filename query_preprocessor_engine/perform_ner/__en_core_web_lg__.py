@@ -3,17 +3,28 @@ import spacy
 
 def perform_ner(text):
     """
-    Performs Named Entity Recognition (NER) on the input text and returns a list of named entities found.
+    Performs Named Entity Recognition (NER) on the input text and returns a modified version of the input text
+    with named entities wrapped in XML tags of their respective entity types.
 
     Args:
     - text (str): The input text to perform NER on.
 
     Returns:
-    - list: A list of named entities found in the input text, represented as tuples of the form (entity_text, entity_type).
+    - str: The input text with named entities wrapped in XML tags of their respective entity types.
     """
     nlp = spacy.load("en_core_web_lg")
     doc = nlp(text)
     entities = []
     for ent in doc.ents:
         entities.append((ent.text, ent.label_))
-    return entities
+    xml_tags = {}
+    for entity, entity_type in entities:
+        if entity_type not in xml_tags:
+            xml_tags[entity_type] = f"{entity_type.upper()}"
+    for entity, entity_type in entities:
+        xml_tag = xml_tags[entity_type]
+        text = text.replace(entity, f"[{xml_tag}]{entity}[/{xml_tag}]")
+    return text
+
+
+print(perform_ner("My favorite book is To Kill a Mockingbird by Harper Lee."))
