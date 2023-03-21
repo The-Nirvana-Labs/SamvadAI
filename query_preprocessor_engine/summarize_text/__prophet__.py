@@ -1,7 +1,7 @@
 from transformers import ProphetNetForConditionalGeneration, ProphetNetTokenizer
 
 
-def summarize_with_prophetnet(input_text):
+def summarize_text(input_text):
     """
     Summarizes input text using ProphetNet model
 
