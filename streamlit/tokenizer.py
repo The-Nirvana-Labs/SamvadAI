@@ -1,68 +1,67 @@
 import streamlit as st
-import transformers
-import re
-import random
 
-# Load the GPT-2 tokenizer
-tokenizer = transformers.GPT2Tokenizer.from_pretrained('gpt2')
+# Set page title and favicon
+st.set_page_config(page_title="SamvadAI", page_icon=":robot_face:")
 
-# Define a list of bright colors
-BRIGHT_COLORS = [
-    "#FFA07A",  # orange
-    "#FFF68F",  # yellow
-    "#ADD8E6",  # blue
-    "#D8BFD8",  # purple
-    "#98FB98",  # green
-    "#FFB6C1",  # pink
-]
-
-# Define regular expressions to match different token types
-RE_KEYWORD = r"^(if|else|for|while|return)$"
-RE_NUMBER = r"^\d+(\.\d+)?$"
-
-
-# Define a function to tokenize a string and annotate it with random colors
-def tokenize_string(text):
-    encoded_text = tokenizer.encode(text, add_special_tokens=False)
-    tokens = tokenizer.convert_ids_to_tokens(encoded_text)
-
-    # Create a list of tuples containing the token text and a random color
-    annotated_tokens = []
-    for token in tokens:
-        if bool(re.match(RE_KEYWORD, token)):
-            token_type = "keyword"
-        elif bool(re.match(RE_NUMBER, token)):
-            token_type = "number"
-        elif token in tokenizer.all_special_tokens:
-            token_type = "punctuation"
-        else:
-            token_type = "text"
-        color = random.choice(BRIGHT_COLORS)
-        annotated_tokens.append((token.replace("Ġ", ""), color))
-
-    # Create a single line string with colored tokens
-    output = ""
-    for token, color in annotated_tokens:
-        output += f'<span style="background-color:{color}; padding: 3px 5px; border-radius: 5px; color: #000000;">{token}</span> '
-
-    return output
-
-
-# Set page configuration
-st.set_page_config(
-    page_title="GPT-2 Tokenizer",
-    page_icon=":pencil2:",
-    layout="wide",
-    initial_sidebar_state="expanded",
+# Set page width and margin
+st.markdown(
+    f"""
+    <style>
+    .reportview-container .main .block-container {{
+        max-width: 1000px;
+        padding-top: 2rem;
+        padding-right: 1rem;
+        padding-left: 1rem;
+        padding-bottom: 10rem;
+    }}
+    </style>
+    """,
+    unsafe_allow_html=True
 )
 
-# Define the app layout
-col1, col2 = st.columns((2, 3))
-with col1:
-    st.header("Input Text")
-    text_input = st.text_area("", height=200)
-with col2:
-    st.header("Tokenized Text")
-    if text_input:
-        output = tokenize_string(text_input)
-        st.markdown(output, unsafe_allow_html=True)
+# Set page background color
+st.markdown(
+    f"""
+    <style>
+    .reportview-container {{
+        background: #1A1A1D;
+        color: white;
+    }}
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# Set header text
+st.header("SamvadAI")
+
+# Set subheader text
+st.subheader("Enter your query below:")
+
+# Set up input and output sections
+input_text = st.text_input("", "")
+output_text = st.empty()
+
+# Define function to generate output based on input
+def generate_output(input_text):
+    # Replace this with your own function
+    # Call your NLP functions on the input text
+    processed_text = preprocess_input(input_text)
+    ner_output = perform_ner(processed_text)
+    # Return the output text
+    output_text = "NER output: " + ner_output
+    return output_text
+
+# Generate output when input is submitted
+if st.button("Submit"):
+    output = generate_output(input_text)
+    output_text.text(output)
+
+# Add footer text
+st.markdown(
+    """
+    ---
+    Created by [SamvadAI](https://samvadai.com/) | Powered by [Streamlit](https://streamlit.io/)
+    """,
+    unsafe_allow_html=True
+)
