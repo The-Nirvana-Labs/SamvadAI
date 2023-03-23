@@ -5,7 +5,11 @@ from .core import pipeline, presets
 from .loader import LoadTextStep, LoadTextContext
 from .remove_stopwords import RemoveStopwordsStep
 from .lemmetize_text import LemmatizeTextEcwsStep
-from .ner import StepEcwl as NerEcwlStep, CastNEROutputToText
+from .ner import StepEcwl as NerEcwlStep
+from .chunks import ExtractChunksStep, CastChunksToText
+from .embedding import EmbeddingAmlvStep, CastEmbeddingTensorToNdArray, CastEmbeddingNdArrayToText,\
+                       EmbeddingToIndexesAnnoyStep
+from .summarization import SummarizeTextPegasusStep
 
 
 def main():
@@ -21,8 +25,16 @@ def main():
         LemmatizeTextEcwsStep(),
         presets.CastStringToStringGeneral(),
         NerEcwlStep(),
-        CastNEROutputToText(),
-
+        presets.CastStringToStringGeneral(),
+        ExtractChunksStep(),
+        CastChunksToText(),
+        EmbeddingAmlvStep(),
+        CastEmbeddingTensorToNdArray(),
+        EmbeddingToIndexesAnnoyStep(),
+        CastEmbeddingNdArrayToText(),
+        SummarizeTextPegasusStep(),
+        presets.CastStringToStringGeneral(),
+        # Final Extract Sentences Step
     ])
 
     execution_pipeline.start()
