@@ -1,5 +1,7 @@
 import spacy
 
+nlp = spacy.load("en_core_web_lg")
+
 
 def perform_ner(text):
     """
@@ -12,7 +14,6 @@ def perform_ner(text):
     Returns:
     - str: The input text with named entities wrapped in XML tags of their respective entity types.
     """
-    nlp = spacy.load("en_core_web_lg")
     doc = nlp(text)
     entities = []
     for ent in doc.ents:
