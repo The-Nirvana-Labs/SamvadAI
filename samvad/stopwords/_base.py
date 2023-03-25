@@ -17,9 +17,9 @@ def remove_stopwords(text: str) -> str:
     - TypeError: If the input text is not a string.
 
     Example:
-    >>> sample = "This is a sample text that we will use to test the remove_stopwords function."
-    >>> remove_stopwords(text)
-    'sample text test remove_stopwords function .'
+    >>> sample = "This is a sample text that we will use to test the stopwords function."
+    >>> stopwords(text)
+    'sample text test stopwords function .'
 
     Performance:
     - Time complexity: O(n), where n is the number of tokens in the input text.
