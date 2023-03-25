@@ -1,17 +1,17 @@
-import numpy as np
 from annoy import AnnoyIndex
+import torch
 
 
-def embedding_to_indexes(embeddings: np.ndarray) -> np.ndarray:
+def embedding_to_indexes(embeddings: torch.Tensor) -> torch.Tensor:
     """
     Builds an Annoy index for the input embeddings using the given hyperparameters.
 
     Args:
-    - embeddings (np.ndarray): The input embeddings to build the Annoy index for.
+    - embeddings (torch.Tensor): The input embeddings to build the Annoy index for.
                                Shape: (num_embeddings, embedding_dim)
 
     Returns:
-    - An np.ndarray representing the Annoy index.
+    - A torch.Tensor representing the Annoy index.
       Shape: (num_embeddings, )
     """
     # Set hyperparameters
@@ -26,8 +26,8 @@ def embedding_to_indexes(embeddings: np.ndarray) -> np.ndarray:
     index.build(n_trees)
 
     # Generate the index for all embeddings
-    index_array = np.zeros((embeddings.shape[0],), dtype=int)
+    index_tensor = torch.zeros((embeddings.shape[0],), dtype=torch.long)
     for i, embedding in enumerate(embeddings):
-        index_array[i] = index.get_nns_by_vector(embedding.tolist(), 1)[0]
+        index_tensor[i] = index.get_nns_by_vector(embedding.tolist(), 1)[0]
 
-    return index_array
+    return index_tensor
