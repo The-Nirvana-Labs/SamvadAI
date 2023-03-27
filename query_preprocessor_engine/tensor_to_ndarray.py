@@ -1,6 +1,7 @@
 import numpy as np
 import torch
 
+
 def cast_tensor_to_ndarray(x: torch.Tensor, use_gpu: bool = False) -> np.ndarray:
     """
     Casts a PyTorch tensor to a numpy ndarray.
