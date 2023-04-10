@@ -100,7 +100,7 @@ metric_type = MetricType.IP
 search_param_milvus = {"metric_type": metric_type}
 
 
-def embedding_to_indexes_milvus(embeddings: np.ndarray, collection_name: str) -> np.ndarray:
+def embedding_to_indexes_milvus(embeddings: np.ndarray, collection_name: str = "milvus") -> np.ndarray:
     """
     Builds a Milvus index for the input embeddings.
 

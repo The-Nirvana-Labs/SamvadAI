@@ -3,8 +3,8 @@ from pathlib import Path
 from .core import pipeline, presets
 
 from .loader import LoadTextStep, LoadTextContext
-from .remove_stopwords import RemoveStopwordsStep
-from .lemmetize_text import LemmatizeTextEcwsStep
+from .stopwords import RemoveStopwordsStep
+from .lemmatizer import LemmatizeTextEcwsStep
 from .ner import StepEcwl as NerEcwlStep
 from .chunks import ExtractChunksStep, CastChunksToText
 from .embedding import EmbeddingAmlvStep, CastEmbeddingTensorToNdArray, CastEmbeddingNdArrayToText,\

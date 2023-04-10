@@ -18,3 +18,8 @@ def extract_sentences(text, num_sentences):
     message = completions.choices[0].text.strip()
     sentences = message.split('. ')
     return sentences
+
+
+
+str = "xtracts a number of sentences from the input text using the GPT-3 model. xtracts a number of sentences from the input text using the GPT-3 model. xtracts a number of sentences from the input text using the GPT-3 model."
+print(len(str))
