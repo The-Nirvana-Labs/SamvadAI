@@ -2,7 +2,7 @@ from milvus import Milvus, IndexType, MetricType
 import numpy as np
 
 
-def embedding_to_indexes(embeddings: np.ndarray, collection_name: str) -> np.ndarray:
+def embedding_to_indexes(embeddings: np.ndarray, collection_name: str = "milvus") -> np.ndarray:
     """
     Builds a Milvus index for the input embeddings.
 
