@@ -1,51 +1,42 @@
-import torch
-from transformers import BertTokenizer, BertForTokenClassification
+from transformers import AutoTokenizer, AutoModelForTokenClassification
 
 
-def chunk_document(document, max_chunk_length=128):
+def extract_chunks(document: str, max_chunk_size: int = 256) -> list:
     """
-    Chunk a document into smaller chunks using BERT.
+    Extracts chunks from a large document using a pre-trained model for named entity recognition.
 
     Args:
-        document (str): Input document to be chunked.
-        max_chunk_length (int): Maximum length of each chunk in number of words.
+        document (str): The large document to be divided into chunks.
+        max_chunk_size (int, optional): The maximum size of each chunk. Defaults to 512.
 
     Returns:
-        chunks (list): List of extracted chunks.
+        list: A list of chunks where each chunk is a string.
     """
-    # Load a pre-trained tokenizer and model
-    tokenizer = BertTokenizer.from_pretrained('bert-base-cased')
-    model = BertForTokenClassification.from_pretrained('bert-base-cased')
+    # Load pre-trained model and tokenizer
+    model_name = "dbmdz/bert-large-cased-finetuned-conll03-english"
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    model = AutoModelForTokenClassification.from_pretrained(model_name)
 
-    # Tokenize the input document
+    # Tokenize the document and get the tokens' labels
     tokens = tokenizer.tokenize(document)
+    labels = []
+    for i in range(0, len(tokens), max_chunk_size):
+        chunk_tokens = tokens[i:i + max_chunk_size]
+        inputs = tokenizer.encode(' '.join(chunk_tokens), return_tensors='pt')
+        outputs = model(inputs).logits.argmax(-1)
+        chunk_labels = [model.config.id2label[label_id] for label_id in outputs[0].tolist()]
+        labels.extend(chunk_labels)
 
-    # Divide the tokens into chunks of maximum length
-    chunks = [tokens[i:i+max_chunk_length] for i in range(0, len(tokens), max_chunk_length)]
-
-    # Convert the chunks to input features
-    input_ids = []
-    attention_masks = []
-    for chunk in chunks:
-        encoded_chunk = tokenizer.encode_plus(chunk, add_special_tokens=True, max_length=max_chunk_length,
-                                              pad_to_max_length=True, return_attention_mask=True, return_tensors='pt')
-        input_ids.append(encoded_chunk['input_ids'])
-        attention_masks.append(encoded_chunk['attention_mask'])
-    input_ids = torch.cat(input_ids, dim=0)
-    attention_masks = torch.cat(attention_masks, dim=0)
-
-    # Predict the chunk labels using the trained BERT model
-    with torch.no_grad():
-        outputs = model(input_ids, attention_mask=attention_masks)
-        logits = outputs.logits
-        predictions = torch.argmax(logits, dim=2)
-
-    # Convert the predicted labels to chunk boundaries
-    boundaries = [i+1 for i, pred in enumerate(predictions[0]) if pred == 1]
-    boundaries.insert(0, 0)
-    boundaries.append(len(tokens))
-
-    # Extract the chunks from the original document
-    chunks = [document[boundaries[i-1]:boundaries[i]] for i in range(1, len(boundaries))]
+    # Extract chunks based on the labels
+    chunks = []
+    current_chunk = ""
+    current_label = ""
+    for token, label in zip(tokens, labels):
+        if current_label != label and current_chunk:
+            chunks.append(current_chunk.strip())
+            current_chunk = ""
+        current_chunk += " " + token
+        current_label = label
+    chunks.append(current_chunk.strip())
 
     return chunks
