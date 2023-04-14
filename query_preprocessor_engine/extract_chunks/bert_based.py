@@ -1,42 +1,66 @@
-from transformers import AutoTokenizer, AutoModelForTokenClassification
+import torch
+from transformers import BertTokenizer, BertForTokenClassification
 
 
-def extract_chunks(document: str, max_chunk_size: int = 256) -> list:
+def chunk_document(document, max_chunk_length=256):
     """
-    Extracts chunks from a large document using a pre-trained model for named entity recognition.
+    Chunk a document into smaller chunks using a pre-trained BERT model.
 
     Args:
-        document (str): The large document to be divided into chunks.
-        max_chunk_size (int, optional): The maximum size of each chunk. Defaults to 512.
+        document (str): Input document to be chunked.
+        max_chunk_length (int): Maximum length of each chunk in number of tokens.
 
     Returns:
-        list: A list of chunks where each chunk is a string.
+        chunks (list): List of extracted chunks.
     """
-    # Load pre-trained model and tokenizer
-    model_name = "dbmdz/bert-large-cased-finetuned-conll03-english"
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForTokenClassification.from_pretrained(model_name)
+    # Load a pre-trained BERT tokenizer
+    tokenizer = BertTokenizer.from_pretrained('bert-base-cased')
 
-    # Tokenize the document and get the tokens' labels
+    # Tokenize the input document
     tokens = tokenizer.tokenize(document)
-    labels = []
-    for i in range(0, len(tokens), max_chunk_size):
-        chunk_tokens = tokens[i:i + max_chunk_size]
-        inputs = tokenizer.encode(' '.join(chunk_tokens), return_tensors='pt')
-        outputs = model(inputs).logits.argmax(-1)
-        chunk_labels = [model.config.id2label[label_id] for label_id in outputs[0].tolist()]
-        labels.extend(chunk_labels)
 
-    # Extract chunks based on the labels
-    chunks = []
-    current_chunk = ""
-    current_label = ""
-    for token, label in zip(tokens, labels):
-        if current_label != label and current_chunk:
-            chunks.append(current_chunk.strip())
-            current_chunk = ""
-        current_chunk += " " + token
-        current_label = label
-    chunks.append(current_chunk.strip())
+    # Divide the tokens into chunks of maximum length
+    chunks = [tokens[i:i+max_chunk_length] for i in range(0, len(tokens), max_chunk_length)]
+
+    # Convert the chunks to input features for the BERT model
+    input_ids = []
+    attention_masks = []
+    for chunk in chunks:
+        encoded_dict = tokenizer.encode_plus(
+                            chunk,                      # Chunk to encode.
+                            add_special_tokens = True,  # Add '[CLS]' and '[SEP]'
+                            max_length = max_chunk_length,  # Pad & truncate all sentences.
+                            padding = 'max_length',
+                            truncation=True,
+                            return_attention_mask = True, # Construct attn. masks.
+                            return_tensors = 'pt'           # Return pytorch tensors.
+                       )
+        input_ids.append(encoded_dict['input_ids'])
+        attention_masks.append(encoded_dict['attention_mask'])
+
+    # Load a pre-trained BERT model
+    model = BertForTokenClassification.from_pretrained('bert-base-cased')
+
+    # Predict the token labels using the trained BERT model
+    model.eval()
+    with torch.no_grad():
+        labels = []
+        for input_id, attention_mask in zip(input_ids, attention_masks):
+            outputs = model(input_id, attention_mask=attention_mask)
+            logits = outputs[0]
+            predicted_labels = torch.argmax(logits, dim=2)
+            labels.append(predicted_labels)
+
+    # Convert the predicted labels to chunk boundaries
+    boundaries = []
+    for label in labels:
+        boundary = torch.where(label[0] == 1)[0]
+        if len(boundary) > 0:
+            boundaries.append(boundary[0])
+        else:
+            boundaries.append(len(label[0]))
+
+    # Extract the chunks from the original document
+    chunks = [document[boundaries[i-1]:boundaries[i]] for i in range(1, len(boundaries))]
 
     return chunks
