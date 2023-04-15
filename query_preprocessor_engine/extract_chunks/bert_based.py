@@ -20,21 +20,21 @@ def chunk_document(document, max_chunk_length=256):
     tokens = tokenizer.tokenize(document)
 
     # Divide the tokens into chunks of maximum length
-    chunks = [tokens[i:i+max_chunk_length] for i in range(0, len(tokens), max_chunk_length)]
+    chunks = [tokens[i:i + max_chunk_length] for i in range(0, len(tokens), max_chunk_length)]
 
     # Convert the chunks to input features for the BERT model
     input_ids = []
     attention_masks = []
     for chunk in chunks:
         encoded_dict = tokenizer.encode_plus(
-                            chunk,                      # Chunk to encode.
-                            add_special_tokens = True,  # Add '[CLS]' and '[SEP]'
-                            max_length = max_chunk_length,  # Pad & truncate all sentences.
-                            padding = 'max_length',
-                            truncation=True,
-                            return_attention_mask = True, # Construct attn. masks.
-                            return_tensors = 'pt'           # Return pytorch tensors.
-                       )
+            chunk,  # Chunk to encode.
+            add_special_tokens=True,  # Add '[CLS]' and '[SEP]'
+            max_length=max_chunk_length,  # Pad & truncate all sentences.
+            padding='max_length',
+            truncation=True,
+            return_attention_mask=True,  # Construct attn. masks.
+            return_tensors='pt'  # Return pytorch tensors.
+        )
         input_ids.append(encoded_dict['input_ids'])
         attention_masks.append(encoded_dict['attention_mask'])
 
@@ -61,6 +61,6 @@ def chunk_document(document, max_chunk_length=256):
             boundaries.append(len(label[0]))
 
     # Extract the chunks from the original document
-    chunks = [document[boundaries[i-1]:boundaries[i]] for i in range(1, len(boundaries))]
+    chunks = [document[boundaries[i - 1]:boundaries[i]] for i in range(1, len(boundaries))]
 
     return chunks
